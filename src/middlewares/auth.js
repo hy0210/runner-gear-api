@@ -5,6 +5,8 @@ const asyncHandler = require('../utils/async-handler');
 const { verifyToken } = require('../utils/jwt');
 const { toPublicUser } = require('../utils/user-view');
 
+// 會員 id 只接受純數字（不接受 1e0、0x1、前後空白等寫法）
+const USER_ID_PATTERN = /^[1-9]\d{0,15}$/;
 const BEARER_PATTERN = /^Bearer ([\w-]+\.[\w-]+\.[\w-]+)$/;
 
 // 所有驗證失敗都回同一句話，不透露是缺少、格式錯誤、過期還是會員不存在
@@ -27,10 +29,10 @@ const auth = asyncHandler(async (req, _res, next) => {
     throw unauthorized();
   }
 
-  const userId = Number(payload.sub);
-  if (!Number.isSafeInteger(userId) || userId <= 0) {
+  if (typeof payload.sub !== 'string' || !USER_ID_PATTERN.test(payload.sub)) {
     throw unauthorized();
   }
+  const userId = Number(payload.sub);
 
   const user = await dataSource.getRepository(User).findOneBy({ id: userId });
   if (!user) {

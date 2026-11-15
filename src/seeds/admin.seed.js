@@ -9,7 +9,9 @@ const adminSchema = z.object({
 });
 
 // 建立（或更新）管理員帳號。這是系統中唯一能產生 admin 的途徑。
-// 重複執行不會產生第二筆；已存在時以這次提供的姓名與密碼為準。
+// 重複執行不會產生第二筆；該帳號已是管理員時，以這次提供的姓名與密碼為準。
+// email 若已被一般會員註冊則中止：不可把既有會員升級為管理員，
+// 否則搶先註冊這個 email 的人，手上的舊 Token 會直接取得管理員權限。
 async function seedAdmin(dataSource, input) {
   const parsed = adminSchema.safeParse(input ?? {});
   if (!parsed.success) {
@@ -22,6 +24,10 @@ async function seedAdmin(dataSource, input) {
   const repository = dataSource.getRepository(User);
   const hashed = await hashPassword(password);
   const existing = await repository.findOneBy({ email });
+
+  if (existing && existing.role !== USER_ROLES.ADMIN) {
+    throw new Error('這個 email 已被一般會員註冊，無法設為管理員。請改用其他 email，或先刪除該會員帳號');
+  }
 
   if (existing) {
     await repository.update({ id: existing.id }, { name, password: hashed, role: USER_ROLES.ADMIN });
