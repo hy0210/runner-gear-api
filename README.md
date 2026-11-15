@@ -84,9 +84,11 @@ docs/                   需求摘要、進度、決策紀錄、資安紀錄、�
 需要 Node.js 24 以上與 PostgreSQL 16。沒有安裝 PostgreSQL 的話，可以用 Docker 起一個：
 
 ```bash
-docker run -d --name runner-gear-pg -p 5432:5432 \
+docker run -d --name runner-gear-pg -p 127.0.0.1:5432:5432 \
   -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runner_gear postgres:16-alpine
 ```
+
+這個資料庫只綁定在本機（`127.0.0.1`），帳號密碼都是 `postgres`，僅供本機開發使用。
 
 接著：
 
