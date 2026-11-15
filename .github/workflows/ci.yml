@@ -9,7 +9,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  # push 事件不取消：gitleaks 在 push 時只掃該次推送的 commit，被取消就會漏掃
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   lint-and-test:
@@ -51,7 +52,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - name: gitleaks（掃描機密，含 git 歷史）
+      - name: gitleaks（掃描機密：push 掃該次推送的 commit，PR 掃全部 commit）
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
