@@ -14,8 +14,9 @@ async function seedDemo(dataSource, input = {}) {
   }
 
   return dataSource.transaction(async (manager) => {
-    // RESTART IDENTITY 讓每次重建後的 id 都相同
-    await manager.query('TRUNCATE TABLE "cart_items", "products", "categories" RESTART IDENTITY CASCADE');
+    // RESTART IDENTITY 讓每次重建後的 id 都相同。
+    // 刻意不加 CASCADE：日後若有新資料表參照商品，這裡會直接失敗，而不是無聲地清掉那張表
+    await manager.query('TRUNCATE TABLE "cart_items", "products", "categories" RESTART IDENTITY');
 
     let productCount = 0;
     for (const category of categories) {
