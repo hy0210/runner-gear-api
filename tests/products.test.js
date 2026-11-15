@@ -101,6 +101,7 @@ describe('#6 任何人可瀏覽商品列表', () => {
     ['limit 超過 50', 'limit=51'],
     ['categoryId 不是正整數', 'categoryId=-1'],
     ['keyword 超過 50 個字元', `keyword=${'a'.repeat(51)}`],
+    ['keyword 含 NUL 字元', 'keyword=a%00b'],
   ])('查詢參數不合法（%s）：回應 400', async (_label, query) => {
     const res = await request(app).get(`${PRODUCTS}?${query}`);
 
