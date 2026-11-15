@@ -78,6 +78,7 @@ describe('#4 訪客可註冊為一般會員', () => {
     ['密碼少於 8 碼', { ...validUser, password: '1234567' }, 'password'],
     ['缺少 name', { email: validUser.email, password: validUser.password }, 'name'],
     ['name 只有空白', { ...validUser, name: '   ' }, 'name'],
+    ['name 含 NUL 字元', { ...validUser, name: 'a\u0000b' }, 'name'],
   ])('資料不合法（%s）：回應 400，不建立會員', async (_label, body, field) => {
     const res = await request(app).post(REGISTER).send(body);
 
