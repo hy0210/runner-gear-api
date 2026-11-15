@@ -14,7 +14,8 @@
     "test": "jest --runInBand",
     "migration:run": "node src/scripts/migrate.js",
     "migration:revert": "node src/scripts/migrate.js revert",
-    "seed:admin": "node src/scripts/seed-admin.js"
+    "seed:admin": "node src/scripts/seed-admin.js",
+    "seed": "node src/scripts/seed.js"
   },
   "repository": {
     "type": "git",
