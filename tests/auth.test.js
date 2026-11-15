@@ -150,6 +150,18 @@ describe('#4 註冊與登入有限流', () => {
     expect(blocked.body.status).toBe('failed');
   });
 
+  test('在反向代理後方：依轉送標頭中的用戶端位址分開計算', async () => {
+    const limited = createApp({ authRateLimitMax: 1 });
+    const attemptFrom = (ip) =>
+      request(limited).post(LOGIN).set('X-Forwarded-For', ip).send({ email: 'a@example.com', password: 'x' });
+
+    const firstClient = [await attemptFrom('203.0.113.10'), await attemptFrom('203.0.113.10')];
+    const secondClient = await attemptFrom('203.0.113.20');
+
+    expect(firstClient.map((r) => r.status)).toEqual([401, 429]);
+    expect(secondClient.status).toBe(401);
+  });
+
   test('限流不影響其他 API', async () => {
     const limited = createApp({ authRateLimitMax: 1 });
     await request(limited).post(LOGIN).send({ email: 'a@example.com', password: 'x' });

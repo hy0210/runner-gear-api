@@ -16,3 +16,6 @@ process.env.CORS_ORIGINS ??= 'http://localhost:5173';
 // JWT 測試用密鑰：執行時組出來的固定字串，僅供測試
 process.env.JWT_SECRET ??= 'test-only-'.repeat(4);
 process.env.JWT_EXPIRES_IN ??= '1h';
+
+// 模擬正式環境在 CloudFront 後方的設定（信任一層代理）
+process.env.TRUST_PROXY ??= '1';
