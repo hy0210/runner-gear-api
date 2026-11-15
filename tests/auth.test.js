@@ -150,6 +150,16 @@ describe('#4 註冊與登入有限流', () => {
     expect(blocked.body.status).toBe('failed');
   });
 
+  test('登入成功不計入次數：連續成功登入不會被限流', async () => {
+    const limited = createApp({ authRateLimitMax: 2 });
+    await request(limited).post(REGISTER).send(validUser);
+    const login = () => request(limited).post(LOGIN).send({ email: validUser.email, password: validUser.password });
+
+    const results = [await login(), await login(), await login(), await login()];
+
+    expect(results.map((r) => r.status)).toEqual([200, 200, 200, 200]);
+  });
+
   test('在反向代理後方：依轉送標頭中的用戶端位址分開計算', async () => {
     const limited = createApp({ authRateLimitMax: 1 });
     const attemptFrom = (ip) =>
