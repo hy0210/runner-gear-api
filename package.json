@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "test": "jest --runInBand",
     "migration:run": "node src/scripts/migrate.js",
-    "migration:revert": "node src/scripts/migrate.js revert"
+    "migration:revert": "node src/scripts/migrate.js revert",
+    "seed:admin": "node src/scripts/seed-admin.js"
   },
   "repository": {
     "type": "git",
