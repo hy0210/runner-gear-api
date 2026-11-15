@@ -1,4 +1,4 @@
-/* eslint-disable security/detect-non-literal-regexp -- 樣式由 .env.example 的變數名稱組成 */
+/* eslint-disable security/detect-non-literal-regexp, security/detect-non-literal-fs-filename -- 路徑與樣式都來自專案內的固定檔案 */
 const fs = require('node:fs');
 const path = require('node:path');
 
