@@ -90,6 +90,19 @@ describe('#5 受保護的 API 需要有效的 JWT', () => {
     expect(res.status).toBe(401);
   });
 
+  test('Token 的 sub 不是純數字的會員 id：回應 401', async () => {
+    const { user } = await createUserWithToken();
+    const sign = (sub) => jwt.sign({}, process.env.JWT_SECRET, { subject: sub, expiresIn: '1h' });
+
+    const results = await Promise.all(
+      [`${user.id}e0`, ` ${user.id}`, `0x${user.id}`, '-1', '0'].map((sub) =>
+        request(app).get(ME).set(bearer(sign(sub))),
+      ),
+    );
+
+    expect(results.map((r) => r.status)).toEqual([401, 401, 401, 401, 401]);
+  });
+
   test('各種 401 的訊息相同，不透露失敗原因', async () => {
     const { user } = await createUserWithToken();
     const expired = jwt.sign({}, process.env.JWT_SECRET, { subject: String(user.id), expiresIn: -10 });
@@ -177,6 +190,17 @@ describe('#5 管理員只能由 seed 產生', () => {
     expect(users).toHaveLength(1);
     expect(users[0].role).toBe('admin');
     expect(res.status).toBe(200);
+  });
+
+  test('email 已被一般會員註冊：seed 中止，不會把該帳號升級為 admin', async () => {
+    const { user, token } = await createUserWithToken({ email: 'admin@example.com' });
+
+    await expect(seedAdmin(dataSource, admin)).rejects.toThrow(/已被一般會員/);
+
+    const saved = await dataSource.getRepository(User).findOneBy({ id: user.id });
+    const res = await request(app).get('/test/admin-only').set(bearer(token));
+    expect(saved.role).toBe('member');
+    expect(res.status).toBe(403);
   });
 
   test('設定不完整或不合法：中止且不建立帳號', async () => {
