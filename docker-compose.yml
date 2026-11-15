@@ -1,0 +1,37 @@
+# 正式環境（EC2）與本機共用。機密值一律來自同目錄的 .env，不寫在這個檔案裡。
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:?請在 .env 設定 DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?請在 .env 設定 DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE:?請在 .env 設定 DB_DATABASE}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # 不對應到主機埠：資料庫只在 compose 內部網路可連
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      # API 對外使用主機 80 埠（CloudFront 以 HTTP 80 連回來源）
+      - "${API_HOST_PORT:-80}:3000"
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:
