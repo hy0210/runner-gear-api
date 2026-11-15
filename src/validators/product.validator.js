@@ -17,8 +17,8 @@ const MAX_PRICE = 10_000_000;
 
 // 管理員新增／編輯商品可寫入的欄位（白名單）
 const productFields = {
-  name: z.string({ error: '請輸入商品名稱' }).trim().min(1, '請輸入商品名稱').max(100, '商品名稱不可超過 100 個字元'),
-  description: z.string().trim().max(2000, '商品描述不可超過 2000 個字元'),
+  name: z.string({ error: '請輸入商品名稱' }).trim().min(1, '請輸入商品名稱').max(100, '商品名稱不可超過 100 個字元').refine(...NO_NUL),
+  description: z.string().trim().max(2000, '商品描述不可超過 2000 個字元').refine(...NO_NUL),
   price: z
     .number({ error: '價格必須是數字' })
     .int('價格必須是整數')

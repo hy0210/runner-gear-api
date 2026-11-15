@@ -114,6 +114,8 @@ describe('#7 管理員可管理商品', () => {
 describe('#7 輸入需通過驗證', () => {
   test.each([
     ['名稱為空', { name: '   ' }, 'name'],
+    ['名稱含 NUL 字元', { name: 'a\u0000b' }, 'name'],
+    ['描述含 NUL 字元', { description: 'a\u0000b' }, 'description'],
     ['價格為負', { price: -1 }, 'price'],
     ['價格是小數', { price: 99.5 }, 'price'],
     ['價格是字串', { price: '100' }, 'price'],
