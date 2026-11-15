@@ -102,6 +102,47 @@ describe('#3 回應格式一致', () => {
   });
 });
 
+describe('#3 錯誤處理的邊界情況', () => {
+  test('不支援的編碼：回應 415 與固定訊息，而不是 500', async () => {
+    const res = await request(app)
+      .post('/test/validate')
+      .set('Content-Type', 'application/json; charset=foo')
+      .send('{"name":"a","quantity":1}');
+
+    expect(res.status).toBe(415);
+    expect(res.body).toEqual({ status: 'failed', message: '請求格式不被接受' });
+  });
+
+  test('未預期錯誤的記錄不包含 SQL 參數', () => {
+    const env = require('../src/config/env');
+    const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const error = Object.assign(new Error('duplicate key'), {
+      name: 'QueryFailedError',
+      code: '23505',
+      query: 'INSERT INTO "users" ...',
+      parameters: ['someone@example.com', 'PASSWORD_HASH_VALUE'],
+    });
+    const res = { headersSent: false, status: jest.fn().mockReturnThis(), json: jest.fn() };
+
+    try {
+      // 測試環境不寫記錄，這裡以替換後的設定模擬正式環境
+      jest.isolateModules(() => {
+        jest.doMock('../src/config/env', () => ({ ...env, NODE_ENV: 'production' }));
+        const isolated = require('../src/middlewares/error-handler');
+        isolated.errorHandler(error, {}, res, jest.fn());
+      });
+    } finally {
+      jest.dontMock('../src/config/env');
+    }
+
+    const logged = spy.mock.calls.flat().join(' ');
+    spy.mockRestore();
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(logged).toContain('QueryFailedError');
+    expect(logged).not.toMatch(/PASSWORD_HASH_VALUE|someone@example\.com/);
+  });
+});
+
 describe('#3 只接受白名單來源與合理大小的請求', () => {
   test('來源在白名單：回應帶 Access-Control-Allow-Origin', async () => {
     const res = await request(app).get('/health').set('Origin', ALLOWED_ORIGIN);
