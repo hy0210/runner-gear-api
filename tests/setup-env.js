@@ -9,3 +9,6 @@ process.env.DB_PORT ??= '5432';
 process.env.DB_USERNAME ??= 'postgres';
 process.env.DB_PASSWORD ??= 'postgres';
 process.env.DB_DATABASE ??= 'runner_gear_test';
+
+// 允許跨來源請求的前端網址（逗號分隔）
+process.env.CORS_ORIGINS ??= 'http://localhost:5173';

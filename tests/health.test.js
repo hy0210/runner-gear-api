@@ -1,5 +1,7 @@
 const request = require('supertest');
-const app = require('../src/app');
+const createApp = require('../src/app');
+
+const app = createApp();
 
 describe('#1 健康檢查', () => {
   test('服務正常：GET /health 回應 200 與 status success', async () => {
