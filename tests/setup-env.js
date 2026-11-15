@@ -12,3 +12,7 @@ process.env.DB_DATABASE ??= 'runner_gear_test';
 
 // 允許跨來源請求的前端網址（逗號分隔）
 process.env.CORS_ORIGINS ??= 'http://localhost:5173';
+
+// JWT 測試用密鑰：執行時組出來的固定字串，僅供測試
+process.env.JWT_SECRET ??= 'test-only-'.repeat(4);
+process.env.JWT_EXPIRES_IN ??= '1h';
