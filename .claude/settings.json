@@ -13,5 +13,9 @@
       "Edit(./.env.production)",
       "Edit(./.env.test)"
     ]
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
   }
 }

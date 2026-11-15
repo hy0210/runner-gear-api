@@ -16,8 +16,9 @@
   1. `/simplify`：檢查這一批新增的程式有沒有重複、可改用既有工具、不必要的複雜度、明顯的效率問題。
   2. `/code-review`：檢查有沒有 bug、邏輯漏洞、與 spec 不一致、可讀性問題。
   3. 獨立資安審查（見下方「資安」）；放最後，才會涵蓋前兩步的修改。
-  - 這兩個是 Claude Code 的指令，Claude Desktop 不一定能用；不能用就以同樣原則自行審查（可用 `/code-review-zh` skill），並在 PR 審查摘要註明用了哪一種。
+  - 這兩個是 Claude Code 的指令，Claude Desktop 不一定能用；不能用就以同樣原則自行審查（可用 `/code-review-zh` skill）。
   - 要不要改由 agent 判斷，不必刁鑽：真正的問題（bug、與 spec 不符、資安、明顯重複或過度複雜）才修；純風格偏好、小幅重構一律不動。修改歸屬單一 issue 的 commit，改完重跑 lint 與測試，並在 PR 審查摘要各記一行（發現什麼、改了什麼、哪些不改）。
+- **提交內容規範**：commit 訊息與 PR 內文（含 PR 留言）一律不加 `Co-Authored-By:`，也不出現任何 AI／agent／Claude 相關資訊（工具署名、session 連結、「Generated with」字樣都不要）；審查摘要與資安審查結果寫成一般開發者的說明。已經推上去的內容不回頭修改。
 - PR 內文列出 `Closes #n`，附審查摘要；同步更新 `docs/PROGRESS.md`，API 有變動時更新 `openapi.yaml`。
 - **不可自行合併 PR**（不執行 `gh pr merge`，也不用 API 合併）。由使用者審查並以一般 merge 合併。
 - 不影響最終結果的技術細節自行決定，並在 `docs/decisions.md` 記一行；只有風格偏好與會影響結果的決策才問使用者。
