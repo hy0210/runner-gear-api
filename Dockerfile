@@ -6,6 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
+COPY openapi.yaml ./
 COPY src ./src
 
 # 以非 root 使用者執行
