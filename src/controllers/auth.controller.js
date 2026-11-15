@@ -60,4 +60,9 @@ async function login(req, res) {
   return sendSuccess(res, { user: toPublicUser(user), token: signToken(user.id) });
 }
 
-module.exports = { register, login };
+// 回傳目前登入的會員（由 auth middleware 從資料庫讀出）
+function getMe(req, res) {
+  return sendSuccess(res, { user: req.user });
+}
+
+module.exports = { register, login, getMe };
