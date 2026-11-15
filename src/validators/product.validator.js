@@ -1,5 +1,5 @@
 const { z } = require('zod');
-const { positiveIntString } = require('./common');
+const { positiveIntString, NO_NUL } = require('./common');
 
 const DEFAULT_PAGE_SIZE = 12;
 const MAX_PAGE_SIZE = 50;
@@ -10,7 +10,7 @@ const listProductsQuerySchema = z.object({
     .refine((value) => value <= MAX_PAGE_SIZE, `limit 不可超過 ${MAX_PAGE_SIZE}`)
     .default(DEFAULT_PAGE_SIZE),
   categoryId: positiveIntString('categoryId').optional(),
-  keyword: z.string().trim().max(50, 'keyword 不可超過 50 個字元').optional(),
+  keyword: z.string().trim().max(50, 'keyword 不可超過 50 個字元').refine(...NO_NUL).optional(),
 });
 
 const MAX_PRICE = 10_000_000;
