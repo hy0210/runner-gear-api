@@ -9,6 +9,12 @@ if (process.env.NODE_ENV !== 'test') {
   require('dotenv').config({ quiet: true });
 }
 
+// .env 裡留空的變數（例如 `TRUST_PROXY=`）會以空字串傳入；一律視為未設定，
+// 這樣選填變數才會套用預設值，必填變數則會被回報為缺少。
+function withoutBlankValues(source) {
+  return Object.fromEntries(Object.entries(source).filter(([, value]) => String(value).trim() !== ''));
+}
+
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -49,7 +55,7 @@ const parsed = schema
     path: ['CORS_ORIGINS'],
     message: '正式環境必須設定至少一個前端來源',
   })
-  .safeParse(process.env);
+  .safeParse(withoutBlankValues(process.env));
 
 if (!parsed.success) {
   // 只印出變數名稱與原因，不印出值。

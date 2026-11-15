@@ -21,6 +21,8 @@ services:
     restart: unless-stopped
     env_file: .env
     environment:
+      # 以下幾項由這裡固定，會蓋過 .env 中的同名設定
+      NODE_ENV: production
       PORT: 3000
       DB_HOST: db
       DB_PORT: 5432

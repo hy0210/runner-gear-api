@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection, security/detect-non-literal-regexp -- 測試中的鍵與樣式都是寫死的字串 */
 // 正式環境設定的檢查（src/config/env.js）。每個測試以獨立的 module 環境重新載入設定。
 const ORIGINAL_ENV = { ...process.env };
 
