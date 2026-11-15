@@ -19,6 +19,17 @@ const schema = z.object({
   DB_PASSWORD: z.string().min(1),
   DB_DATABASE: z.string().min(1),
 
+  // JWT 簽章密鑰：至少 32 個字元的隨機字串（可用 openssl rand -hex 32 產生）
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET 至少需要 32 個字元'),
+  // JWT 有效期限，格式如 12h、7d
+  JWT_EXPIRES_IN: z
+    .string()
+    .regex(/^[1-9]\d{0,3}[smhd]$/, '格式需為數字加上 s、m、h、d，例如 7d')
+    .default('7d'),
+
+  // 前方反向代理的層數（CloudFront 為 1），用來取得真實的用戶端位址。未設定時正式環境為 1，其餘為 0
+  TRUST_PROXY: z.coerce.number().int().min(0).max(5).optional(),
+
   // 允許跨來源請求的前端網址，以逗號分隔
   CORS_ORIGINS: z
     .string()
@@ -46,4 +57,7 @@ if (!parsed.success) {
   throw new Error(`環境變數設定有誤：\n${problems.join('\n')}`);
 }
 
-module.exports = Object.freeze(parsed.data);
+const config = { ...parsed.data };
+config.TRUST_PROXY ??= config.NODE_ENV === 'production' ? 1 : 0;
+
+module.exports = Object.freeze(config);
