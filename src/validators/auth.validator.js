@@ -1,4 +1,5 @@
 const { z } = require('zod');
+const { NO_NUL } = require('./common');
 
 // email 一律去除前後空白並轉小寫後再驗證、儲存與比對
 const email = z
@@ -21,7 +22,8 @@ const registerSchema = z.object({
     .string({ error: '請輸入姓名' })
     .trim()
     .min(1, '請輸入姓名')
-    .max(50, '姓名長度不可超過 50 個字元'),
+    .max(50, '姓名長度不可超過 50 個字元')
+    .refine(...NO_NUL),
 });
 
 const loginSchema = z.object({
