@@ -4,7 +4,7 @@ agent 自行決定的事項與理由，一行一條。使用者回答過的決�
 
 | 日期 | 相關 issue | 決定 | 理由 |
 |---|---|---|---|
-| 11/15 | #1 | Express 5、CommonJS、Node.js 22 | Express 5 為目前預設版本；CommonJS 設定最少 |
+| 11/15 | #1 | Express 5、CommonJS、Node.js 24（後改，原為 22） | Express 5 為目前預設版本；CommonJS 設定最少。Node 24 是 Active LTS，支援到 2028/04；22 只到 2027/04（使用者要求升級；26 剛升 LTS，原生套件相容性較不確定，故選 24） |
 | 11/15 | #1 | ESLint 10 flat config + eslint-plugin-security | 計畫指定的寫法層資安檢查 |
 | 11/15 | #1 | 環境變數在啟動時以 zod 檢查，有誤即拒絕啟動，訊息只列變數名稱 | 及早發現設定錯誤，且不把值印到記錄 |
 | 11/15 | #1 | 測試不讀 `.env`，連線設定寫在 `tests/setup-env.js`（可用環境變數覆寫） | agent 不碰 `.env`；CI 與本機用同一份預設值 |
