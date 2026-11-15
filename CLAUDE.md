@@ -29,7 +29,7 @@
 - 程式必須遵守 `docs/security.md` 的「應用程式安全需求」。
 
 ## 程式慣例
-- Node.js 22、Express 5、CommonJS、JavaScript。
+- Node.js 24、Express 5、CommonJS、JavaScript。
 - 分層：`routes`（路由與 middleware 串接）→ `controllers`（處理請求與回應）→ `entities`（TypeORM EntitySchema）；輸入驗證集中在 `validators`（zod）。
 - 資料庫變更一律寫 migration，不使用 `synchronize`。
 - 指令：`npm run lint`、`npm test`（需要測試資料庫，連線設定見 `tests/setup-env.js`）。
