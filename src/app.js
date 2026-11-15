@@ -5,6 +5,7 @@ const env = require('./config/env');
 const { buildCorsOptions } = require('./config/cors');
 const healthRoutes = require('./routes/health.routes');
 const createApiRoutes = require('./routes');
+const docsRoutes = require('./routes/docs.routes');
 const { notFound, errorHandler } = require('./middlewares/error-handler');
 
 const JSON_BODY_LIMIT = '100kb';
@@ -23,6 +24,7 @@ function createApp({ extraRoutes, authRateLimitMax } = {}) {
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
 
   app.use('/health', healthRoutes);
+  app.use('/api-docs', docsRoutes);
   app.use('/api/v1', createApiRoutes({ authRateLimitMax }));
 
   if (extraRoutes) {
