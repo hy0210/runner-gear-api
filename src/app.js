@@ -1,14 +1,32 @@
 const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const env = require('./config/env');
+const { buildCorsOptions } = require('./config/cors');
 const healthRoutes = require('./routes/health.routes');
+const { notFound, errorHandler } = require('./middlewares/error-handler');
 
-const app = express();
+const JSON_BODY_LIMIT = '100kb';
 
-app.disable('x-powered-by');
+// extraRoutes 只供測試掛上驗證共用機制的路由，正式啟動時不傳。
+function createApp({ extraRoutes } = {}) {
+  const app = express();
 
-app.use('/health', healthRoutes);
+  app.disable('x-powered-by');
+  app.use(helmet());
+  app.use(cors(buildCorsOptions(env.CORS_ORIGINS)));
+  app.use(express.json({ limit: JSON_BODY_LIMIT }));
 
-app.use((_req, res) => {
-  res.status(404).json({ status: 'failed', message: '找不到這個路徑' });
-});
+  app.use('/health', healthRoutes);
 
-module.exports = app;
+  if (extraRoutes) {
+    extraRoutes(app);
+  }
+
+  app.use(notFound);
+  app.use(errorHandler);
+
+  return app;
+}
+
+module.exports = createApp;

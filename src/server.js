@@ -1,10 +1,10 @@
 const env = require('./config/env');
 const dataSource = require('./config/data-source');
-const app = require('./app');
+const createApp = require('./app');
 
 async function start() {
   await dataSource.initialize();
-  app.listen(env.PORT, () => {
+  createApp().listen(env.PORT, () => {
     console.log(`API 已啟動，監聽埠 ${env.PORT}`);
   });
 }

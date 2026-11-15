@@ -20,3 +20,9 @@ agent 自行決定的事項與理由，一行一條。使用者回答過的決�
 | 11/15 | #2 | 刪除商品時連帶刪除購物車項目（CASCADE）；分類底下有商品時禁止刪除（RESTRICT）；刪除會員時連帶刪除其購物車 | 管理員刪商品不應被他人的購物車擋住；分類不應被誤刪 |
 | 11/15 | #2 | 不做庫存欄位 | 需求沒有訂單與庫存 |
 | 11/15 | #2 | 測試直接連 PostgreSQL（CI 用 service container），每個測試檔開始時重建結構 | 約束必須在真的資料庫上驗證 |
+| 11/15 | #3 | 回應格式：成功 `{ status: "success", data }`；4xx `{ status: "failed", message, errors? }`；5xx `{ status: "error", message }` | 前端可用 `status` 一致判斷；5xx 一律固定訊息 |
+| 11/15 | #3 | 驗證後的資料放在 `req.validated`，controller 不直接讀 `req.body` | zod 會丟棄未定義欄位，等同白名單；Express 5 的 `req.query` 也無法直接覆寫 |
+| 11/15 | #3 | zod 驗證訊息使用內建的繁體中文語系 | 錯誤訊息會顯示給使用者 |
+| 11/15 | #3 | JSON body 上限 100kb | 本專題沒有上傳需求，預設值已足夠 |
+| 11/15 | #3 | CORS 來源由 `CORS_ORIGINS`（逗號分隔）設定，拒絕 `*`；正式環境未設定則拒絕啟動；不開 credentials | Token 走 Authorization 標頭，不需要 cookie |
+| 11/15 | #3 | `createApp()` 工廠函式；測試可掛上測試專用路由 | 共用機制能在沒有業務 API 時先被測試 |

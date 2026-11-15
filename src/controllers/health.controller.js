@@ -1,5 +1,7 @@
+const { sendSuccess } = require('../utils/response');
+
 function getHealth(_req, res) {
-  res.status(200).json({ status: 'success', data: { message: 'ok' } });
+  sendSuccess(res, { message: 'ok' });
 }
 
 module.exports = { getHealth };
