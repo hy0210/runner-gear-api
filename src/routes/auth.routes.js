@@ -8,11 +8,12 @@ const { registerSchema, loginSchema } = require('../validators/auth.validator');
 
 function createAuthRoutes({ authRateLimitMax } = {}) {
   const router = Router();
-  // 註冊與登入共用同一個限流計數
-  const authLimiter = createAuthRateLimiter(authRateLimitMax);
+  // 註冊：每次請求都計入；登入：只計入失敗的嘗試（擋暴力猜密碼，不影響正常連續登入）
+  const registerLimiter = createAuthRateLimiter(authRateLimitMax);
+  const loginLimiter = createAuthRateLimiter(authRateLimitMax, { skipSuccessfulRequests: true });
 
-  router.post('/register', authLimiter, validate({ body: registerSchema }), asyncHandler(authController.register));
-  router.post('/login', authLimiter, validate({ body: loginSchema }), asyncHandler(authController.login));
+  router.post('/register', registerLimiter, validate({ body: registerSchema }), asyncHandler(authController.register));
+  router.post('/login', loginLimiter, validate({ body: loginSchema }), asyncHandler(authController.login));
   router.get('/me', auth, authController.getMe);
 
   return router;
