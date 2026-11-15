@@ -67,3 +67,7 @@ agent 自行決定的事項與理由，一行一條。使用者回答過的決�
 | 11/15 | #10 | 文件的 `servers` 用相對路徑 `/` | 不論本機或 CloudFront 網域，Swagger UI 都打到目前這台伺服器 |
 | 11/15 | #10 | Swagger UI 沿用全站的 helmet 設定，沒有放寬 CSP；關閉外部驗證服務 | 頁面只載入同來源的 script，不需要例外 |
 | 11/15 | #10 | 測試以一份路由清單比對 `openapi.yaml` 的路徑與方法，並逐一確認每支 API 真的存在 | 新增 API 忘記寫文件時測試會失敗 |
+| 11/15 | #11 | `docker-compose.yml` 把 `NODE_ENV` 固定為 `production` | 避免 `.env` 誤填而跳過正式環境的檢查（資安審查批次 1 的 B4） |
+| 11/15 | #11 | `.env` 中留空的變數一律視為未設定 | 直接複製 `.env.example` 時，留空的 `TRUST_PROXY=` 原本會被當成 0，使限流失準 |
+| 11/15 | #11 | 部署採手動 `git pull && docker compose up -d --build`，migration 在容器啟動時自動套用 | 計畫指定；不持有 AWS 憑證，不做自動部署 |
+| 11/15 | #11 | 線上冒煙測試寫成可直接貼上的 curl 指令，放在 `docs/deploy.md` | 部署後由使用者在自己的電腦執行，逐項對照結果 |
