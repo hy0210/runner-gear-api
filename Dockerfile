@@ -12,4 +12,5 @@ COPY src ./src
 USER node
 
 EXPOSE 3000
-CMD ["node", "src/server.js"]
+# 啟動前先套用尚未執行的 migration
+CMD ["sh", "-c", "node src/scripts/migrate.js && node src/server.js"]

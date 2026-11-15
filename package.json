@@ -11,7 +11,9 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "lint": "eslint .",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "migration:run": "node src/scripts/migrate.js",
+    "migration:revert": "node src/scripts/migrate.js revert"
   },
   "repository": {
     "type": "git",
