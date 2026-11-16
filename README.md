@@ -6,19 +6,19 @@
 
 | 項目 | 網址 |
 |---|---|
-| API Base URL | （部署後補上） |
-| API 文件（Swagger UI） | （部署後補上）`<API Base URL>/api-docs` |
-| 前端網站 | （部署後補上） |
+| API Base URL | <https://d1461t9n4hr1h9.cloudfront.net> |
+| API 文件（Swagger UI） | <https://d1461t9n4hr1h9.cloudfront.net/api-docs> |
+| 前端網站 | <https://main.dw6kj6rkourn5.amplifyapp.com> |
 | 前端 Repo | <https://github.com/hy0210/runner-gear-web> |
 
-API 文件可以直接在瀏覽器試打：先呼叫登入取得 `token`，按右上角 **Authorize** 貼上即可。要匯入 Postman 可使用 `<API Base URL>/api-docs/openapi.json`。
+API 文件可以直接在瀏覽器試打：先呼叫登入取得 `token`，按右上角 **Authorize** 貼上即可。要匯入 Postman 可使用 <https://d1461t9n4hr1h9.cloudfront.net/api-docs/openapi.json>。
 
 ## 測試帳號
 
 | 身分 | Email | 密碼 |
 |---|---|---|
-| 一般會員 | （部署後補上） | （部署後補上） |
-| 管理員 | （部署後補上） | （部署後補上） |
+| 一般會員 | `member@runnergear.test` | `m1e2m3b4e5r6` |
+| 管理員 | `admin@runnergear.test` | `a5d4m3i2n1` |
 
 管理員測試帳號是公開的，商品資料可能被其他人改動；審核期間會定期還原為初始的 35 筆商品。
 
@@ -74,10 +74,10 @@ src/
   scripts/              migration 與 seed 的執行入口
   utils/                共用工具（回應格式、JWT、密碼）
 tests/                  API 整合測試
-docs/                   需求摘要、進度、決策紀錄、資安紀錄、部署文件、資料表關係圖
+docs/                   需求摘要、進度、決策紀錄、資安紀錄、部署文件、資料表關係圖、部署架構圖（architecture.md）
 ```
 
-資料表關係圖見 [`docs/erd.md`](docs/erd.md)；部署架構見 [`docs/architecture.md`](docs/architecture.md)；部署步驟見 [`docs/deploy.md`](docs/deploy.md)。
+資料表關係圖見 [`docs/erd.md`](docs/erd.md)；部署架構見 [`docs/architecture.md`](docs/architecture.md)。
 
 ## 本機啟動
 
@@ -105,7 +105,7 @@ npm run dev               # 啟動，預設 http://localhost:3000
 
 啟動後可開啟 <http://localhost:3000/api-docs> 查看 API 文件，或以 `curl http://localhost:3000/health` 確認服務正常。
 
-也可以用 Docker Compose 一次啟動 API 與資料庫（與正式環境相同的方式），步驟見 [`docs/deploy.md`](docs/deploy.md)；本機若 80 埠已被占用，在 `.env` 設定 `API_HOST_PORT`。
+也可以用 Docker Compose 一次啟動 API 與資料庫（與正式環境相同的方式）：`docker compose up -d --build` 啟動時會自動套用 migration，再執行 `docker compose exec api npm run seed` 建立資料。本機若 80 埠已被占用，在 `.env` 設定 `API_HOST_PORT`。
 
 ### 常用指令
 
@@ -161,7 +161,6 @@ npm test
 - [`docs/requirements.md`](docs/requirements.md)：需求與評分標準摘要
 - [`docs/erd.md`](docs/erd.md)：資料表關係圖
 - [`docs/architecture.md`](docs/architecture.md)：部署架構圖
-- [`docs/deploy.md`](docs/deploy.md)：部署、更新、還原資料與線上冒煙測試
 - [`docs/security.md`](docs/security.md)：資安檢查清單、已知風險與各批次審查紀錄
 - [`docs/decisions.md`](docs/decisions.md)：技術決策紀錄
 - [`docs/PROGRESS.md`](docs/PROGRESS.md)：開發進度

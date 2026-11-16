@@ -57,7 +57,7 @@
 | B6 | 資料庫層沒擋空字串與數值上限 | 可不改 | ➡️ 由各批次的 validator 處理（已列入安全需求） |
 
 已檢查且無問題：無機密入庫、`.gitignore` 與 `.dockerignore` 足夠；錯誤回應不洩漏內部資訊；驗證 middleware 的白名單與原型污染；CORS、helmet、body 上限；資料庫約束與 migration 一致性；容器以非 root 執行、資料庫不對外；CI 權限最小且無注入面。
-部署時注意（批次 4 納入 `docs/deploy.md`）：CloudFront 需轉送 `Origin` 標頭（`AllViewerExceptHostHeader` 已包含）。
+部署時注意：CloudFront 需轉送 `Origin` 標頭（`AllViewerExceptHostHeader` 已包含）。
 
 ### 批次 2｜`feat/be-auth`（#4、#5）｜2026/11/15
 審查方式：獨立審查（唯讀），範圍為分支相對 `feat/be-foundation` 的全部變更，並以行內探測實測註冊、登入、Token、權限與限流。
