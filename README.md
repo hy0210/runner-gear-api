@@ -77,7 +77,7 @@ tests/                  API 整合測試
 docs/                   需求摘要、進度、決策紀錄、資安紀錄、部署文件、資料表關係圖
 ```
 
-資料表關係圖見 [`docs/erd.md`](docs/erd.md)；部署步驟見 [`docs/deploy.md`](docs/deploy.md)。
+資料表關係圖見 [`docs/erd.md`](docs/erd.md)；部署架構見 [`docs/architecture.md`](docs/architecture.md)；部署步驟見 [`docs/deploy.md`](docs/deploy.md)。
 
 ## 本機啟動
 
@@ -160,6 +160,7 @@ npm test
 
 - [`docs/requirements.md`](docs/requirements.md)：需求與評分標準摘要
 - [`docs/erd.md`](docs/erd.md)：資料表關係圖
+- [`docs/architecture.md`](docs/architecture.md)：部署架構圖
 - [`docs/deploy.md`](docs/deploy.md)：部署、更新、還原資料與線上冒煙測試
 - [`docs/security.md`](docs/security.md)：資安檢查清單、已知風險與各批次審查紀錄
 - [`docs/decisions.md`](docs/decisions.md)：技術決策紀錄
