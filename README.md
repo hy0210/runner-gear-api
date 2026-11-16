@@ -8,7 +8,7 @@
 |---|---|
 | API Base URL | <https://d1461t9n4hr1h9.cloudfront.net> |
 | API 文件（Swagger UI） | <https://d1461t9n4hr1h9.cloudfront.net/api-docs> |
-| 前端網站 | （前端部署後補上） |
+| 前端網站 | <https://main.dw6kj6rkourn5.amplifyapp.com> |
 | 前端 Repo | <https://github.com/hy0210/runner-gear-web> |
 
 API 文件可以直接在瀏覽器試打：先呼叫登入取得 `token`，按右上角 **Authorize** 貼上即可。要匯入 Postman 可使用 <https://d1461t9n4hr1h9.cloudfront.net/api-docs/openapi.json>。

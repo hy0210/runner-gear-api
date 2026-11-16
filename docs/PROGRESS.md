@@ -20,7 +20,7 @@
 
 ## 線上環境
 - API Base URL：<https://d1461t9n4hr1h9.cloudfront.net>
-- 前端 URL：之後補（Amplify）
+- 前端 URL：<https://main.dw6kj6rkourn5.amplifyapp.com>
 - API 文件網址：<https://d1461t9n4hr1h9.cloudfront.net/api-docs>
 - 線上冒煙測試：2026/11/16 通過。依部署操作步驟在線上 Swagger UI 完成 8 項：商品列表 35 筆、未登入購物車 401、會員登入、帶 Token 查看購物車 200、重複加入同一商品累加、會員呼叫管理員 API 403、管理員編輯商品 200
 
