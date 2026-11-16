@@ -65,7 +65,7 @@ docker compose up -d --build
 
 ```bash
 docker compose ps                 # api 與 db 都應為 running，db 為 healthy
-docker compose logs api --tail 30 # 應看到「已套用 1 個 migration」與「API 已啟動」
+docker compose logs --tail=30 api  # 應看到「已套用 1 個 migration」與「API 已啟動」
 curl -s http://localhost/health   # 應回 {"status":"success","data":{"message":"ok"}}
 ```
 
@@ -99,7 +99,7 @@ curl -s https://dxxxx.cloudfront.net/health
 cd ~/runner-gear-api
 git pull
 docker compose up -d --build
-docker compose logs api --tail 30
+docker compose logs --tail=30 api
 ```
 
 資料庫資料會保留；有新的 migration 時會在啟動時自動套用。
@@ -142,7 +142,7 @@ CORS_ORIGINS=https://main.xxxxxxxx.amplifyapp.com,http://localhost:5173
 
 | 目的 | 指令 |
 |---|---|
-| 看 API 記錄 | `docker compose logs api --tail 100 -f` |
+| 看 API 記錄 | `docker compose logs -f --tail=100 api` |
 | 重新啟動 API | `docker compose restart api` |
 | 停止全部服務（保留資料） | `docker compose down` |
 | 進資料庫查資料 | `docker compose exec db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"'` |
