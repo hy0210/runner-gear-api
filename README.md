@@ -6,19 +6,19 @@
 
 | 項目 | 網址 |
 |---|---|
-| API Base URL | （部署後補上） |
-| API 文件（Swagger UI） | （部署後補上）`<API Base URL>/api-docs` |
-| 前端網站 | （部署後補上） |
+| API Base URL | <https://d1461t9n4hr1h9.cloudfront.net> |
+| API 文件（Swagger UI） | <https://d1461t9n4hr1h9.cloudfront.net/api-docs> |
+| 前端網站 | （前端部署後補上） |
 | 前端 Repo | <https://github.com/hy0210/runner-gear-web> |
 
-API 文件可以直接在瀏覽器試打：先呼叫登入取得 `token`，按右上角 **Authorize** 貼上即可。要匯入 Postman 可使用 `<API Base URL>/api-docs/openapi.json`。
+API 文件可以直接在瀏覽器試打：先呼叫登入取得 `token`，按右上角 **Authorize** 貼上即可。要匯入 Postman 可使用 <https://d1461t9n4hr1h9.cloudfront.net/api-docs/openapi.json>。
 
 ## 測試帳號
 
 | 身分 | Email | 密碼 |
 |---|---|---|
-| 一般會員 | （部署後補上） | （部署後補上） |
-| 管理員 | （部署後補上） | （部署後補上） |
+| 一般會員 | `member@runnergear.test` | `m1e2m3b4e5r6` |
+| 管理員 | `admin@runnergear.test` | `a5d4m3i2n1` |
 
 管理員測試帳號是公開的，商品資料可能被其他人改動；審核期間會定期還原為初始的 35 筆商品。
 
