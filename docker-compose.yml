@@ -1,14 +1,17 @@
 # 正式環境（EC2）與本機共用。機密值一律來自同目錄的 .env，不寫在這個檔案裡。
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:18-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USERNAME:?請在 .env 設定 DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD:?請在 .env 設定 DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE:?請在 .env 設定 DB_DATABASE}
     volumes:
-      - db-data:/var/lib/postgresql/data
+      # PostgreSQL 18 起，官方映像檔的資料目錄是版本專屬的子目錄
+      # （容器內 /var/lib/postgresql/18/docker），因此掛載上層的 /var/lib/postgresql。
+      # 沿用舊寫法的 /var/lib/postgresql/data 會讓容器啟動失敗或初始化成空資料庫。
+      - db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
