@@ -74,7 +74,7 @@ src/
   scripts/              migration 與 seed 的執行入口
   utils/                共用工具（回應格式、JWT、密碼）
 tests/                  API 整合測試
-docs/                   需求摘要、進度、決策紀錄、資安紀錄、部署文件、資料表關係圖
+docs/                   需求摘要、進度、決策紀錄、資安紀錄、部署文件、資料表關係圖、部署架構圖（architecture.md）
 ```
 
 資料表關係圖見 [`docs/erd.md`](docs/erd.md)；部署架構見 [`docs/architecture.md`](docs/architecture.md)。
