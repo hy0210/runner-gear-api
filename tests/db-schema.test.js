@@ -6,9 +6,19 @@ const UNIQUE_VIOLATION = '23505';
 const FOREIGN_KEY_VIOLATION = '23503';
 const NOT_NULL_VIOLATION = '23502';
 const CHECK_VIOLATION = '23514';
+// PostgreSQL 18 起，ON DELETE RESTRICT 被擋下時改用 restrict_violation（23001）；
+// 16、17 仍是 23503。兩者都代表「刪除被拒絕」，所以測試接受任一個。
+const RESTRICT_VIOLATION = '23001';
 
-function expectDbError(promise, code) {
-  return expect(promise).rejects.toMatchObject({ driverError: { code } });
+// 可接受多個錯誤代碼：只要其中一個相符就算通過。
+async function expectDbError(promise, ...acceptedCodes) {
+  const error = await promise.then(
+    () => null,
+    (caught) => caught,
+  );
+
+  expect(error).not.toBeNull();
+  expect(acceptedCodes).toContain(error.driverError?.code ?? error.code);
 }
 
 async function createUser(overrides = {}) {
@@ -141,6 +151,7 @@ describe('#2 資料庫結構與約束', () => {
 
       await expectDbError(
         dataSource.getRepository(Category).delete({ id: category.id }),
+        RESTRICT_VIOLATION,
         FOREIGN_KEY_VIOLATION,
       );
     });
