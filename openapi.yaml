@@ -1,0 +1,551 @@
+openapi: 3.0.3
+info:
+  title: Runner Gear 跑者裝備 API
+  version: 1.0.0
+  description: |
+    跑步裝備店電商平台的後端 API（六角學院單人專題）。
+
+    **使用方式**
+    1. 呼叫 `POST /api/v1/auth/login`（或 `register`）取得 `token`。
+    2. 點右上角 **Authorize**，貼上 token（不需要加 `Bearer`）。
+    3. 之後就能呼叫購物車與管理員 API。
+
+    **回應格式**
+    - 成功：`{ "status": "success", "data": ... }`
+    - 請求有誤（4xx）：`{ "status": "failed", "message": "...", "errors": [...] }`，`errors` 只在欄位驗證失敗時出現
+    - 伺服器錯誤（5xx）：`{ "status": "error", "message": "..." }`
+
+    測試帳號請見 Repo 的 README。
+servers:
+  - url: /
+    description: 目前這台伺服器
+tags:
+  - name: 會員
+    description: 註冊、登入、取得目前登入者
+  - name: 商品
+    description: 商品與分類瀏覽（不需登入）
+  - name: 購物車
+    description: 需要登入；只能操作自己的購物車
+  - name: 商品管理
+    description: 需要管理員身分
+  - name: 系統
+
+paths:
+  /health:
+    get:
+      tags: [系統]
+      summary: 健康檢查
+      responses:
+        '200':
+          description: 服務正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: success }
+                  data:
+                    type: object
+                    properties:
+                      message: { type: string, example: ok }
+
+  /api/v1/auth/register:
+    post:
+      tags: [會員]
+      summary: 註冊
+      description: |
+        建立一般會員並直接回傳 token。只接受 `email`、`password`、`name`，
+        多帶的欄位（例如 `role`）會被忽略，角色固定為 `member`。
+        同一來源 15 分鐘內最多 20 次。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterInput' }
+      responses:
+        '201':
+          description: 註冊成功
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409':
+          description: email 已經註冊過
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Failed' }
+              example: { status: failed, message: 這個 email 已經註冊過 }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /api/v1/auth/login:
+    post:
+      tags: [會員]
+      summary: 登入
+      description: |
+        成功時回傳會員資料與 token（預設 7 天後到期）。
+        帳號不存在與密碼錯誤回傳相同的訊息。
+        同一來源 15 分鐘內失敗超過 20 次會回 429。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginInput' }
+      responses:
+        '200':
+          description: 登入成功
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401':
+          description: email 或密碼錯誤
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Failed' }
+              example: { status: failed, message: email 或密碼錯誤 }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /api/v1/auth/me:
+    get:
+      tags: [會員]
+      summary: 取得目前登入的會員
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: 目前登入的會員
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: success }
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/categories:
+    get:
+      tags: [商品]
+      summary: 分類列表
+      responses:
+        '200':
+          description: 全部分類
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: success }
+                  data:
+                    type: object
+                    properties:
+                      categories:
+                        type: array
+                        items: { $ref: '#/components/schemas/Category' }
+
+  /api/v1/products:
+    get:
+      tags: [商品]
+      summary: 商品列表（分頁、分類篩選、關鍵字搜尋）
+      description: 三個條件可以同時使用。依商品 id 由小到大排序；頁碼超出範圍時回傳空陣列。
+      parameters:
+        - name: page
+          in: query
+          description: 頁碼，從 1 開始
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: limit
+          in: query
+          description: 每頁筆數
+          schema: { type: integer, minimum: 1, maximum: 50, default: 12 }
+        - name: categoryId
+          in: query
+          description: 只顯示這個分類的商品
+          schema: { type: integer, minimum: 1 }
+        - name: keyword
+          in: query
+          description: 商品名稱包含這個關鍵字（不分大小寫）
+          schema: { type: string, maxLength: 50 }
+      responses:
+        '200':
+          description: 該頁商品與分頁資訊
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: success }
+                  data:
+                    type: object
+                    properties:
+                      products:
+                        type: array
+                        items: { $ref: '#/components/schemas/Product' }
+                      pagination: { $ref: '#/components/schemas/Pagination' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+
+  /api/v1/products/{id}:
+    get:
+      tags: [商品]
+      summary: 單一商品
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '200':
+          description: 商品資料
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/ProductNotFound' }
+
+  /api/v1/admin/products:
+    post:
+      tags: [商品管理]
+      summary: 新增商品（管理員）
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductCreateInput' }
+      responses:
+        '201':
+          description: 新增成功
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/v1/admin/products/{id}:
+    patch:
+      tags: [商品管理]
+      summary: 編輯商品（管理員）
+      description: 可以只送要修改的欄位，但至少要有一個。
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductUpdateInput' }
+      responses:
+        '200':
+          description: 更新後的商品
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/ProductNotFound' }
+    delete:
+      tags: [商品管理]
+      summary: 刪除商品（管理員）
+      description: 購物車中的該商品會一併移除。
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/ProductId'
+      responses:
+        '204':
+          description: 刪除成功（沒有回應內容）
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/ProductNotFound' }
+
+  /api/v1/cart:
+    get:
+      tags: [購物車]
+      summary: 查看自己的購物車
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: 購物車內容
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CartResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/cart/items:
+    post:
+      tags: [購物車]
+      summary: 加入購物車
+      description: |
+        商品已在購物車時數量會累加，不會產生第二筆。
+        單一商品數量上限為 99，累加後超過上限回 400 且數量不變。
+        回傳最新的完整購物車。
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemAddInput' }
+      responses:
+        '201':
+          description: 加入成功，回傳最新的購物車
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CartResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/ProductNotFound' }
+
+  /api/v1/cart/items/{itemId}:
+    patch:
+      tags: [購物車]
+      summary: 調整購物車項目的數量
+      description: '`itemId` 是購物車項目的 id（不是商品 id）。只能調整自己的項目。'
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CartItemId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CartItemUpdateInput' }
+      responses:
+        '200':
+          description: 調整成功，回傳最新的購物車
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CartResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/CartItemNotFound' }
+    delete:
+      tags: [購物車]
+      summary: 移除購物車項目
+      description: 只能移除自己的項目。
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CartItemId'
+      responses:
+        '200':
+          description: 移除成功，回傳最新的購物車
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CartResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/CartItemNotFound' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 登入或註冊後取得的 token
+
+  parameters:
+    ProductId:
+      name: id
+      in: path
+      required: true
+      description: 商品 id
+      schema: { type: integer, minimum: 1 }
+    CartItemId:
+      name: itemId
+      in: path
+      required: true
+      description: 購物車項目 id
+      schema: { type: integer, minimum: 1 }
+
+  responses:
+    ValidationError:
+      description: 輸入資料有誤
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Failed' }
+          example:
+            status: failed
+            message: 輸入資料有誤
+            errors:
+              - { field: quantity, message: 數量必須是正整數 }
+    Unauthorized:
+      description: 沒有登入，或 token 無效、已過期
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Failed' }
+          example: { status: failed, message: 請先登入 }
+    Forbidden:
+      description: 已登入但不是管理員
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Failed' }
+          example: { status: failed, message: 沒有權限執行這個操作 }
+    ProductNotFound:
+      description: 找不到這個商品
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Failed' }
+          example: { status: failed, message: 找不到這個商品 }
+    CartItemNotFound:
+      description: 找不到這個購物車項目（不存在，或不是自己的）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Failed' }
+          example: { status: failed, message: 找不到這個購物車項目 }
+    TooManyRequests:
+      description: 嘗試次數過多
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Failed' }
+          example: { status: failed, message: 嘗試次數過多，請稍後再試 }
+
+  schemas:
+    Failed:
+      type: object
+      required: [status, message]
+      properties:
+        status: { type: string, example: failed }
+        message: { type: string }
+        errors:
+          type: array
+          description: 只在欄位驗證失敗時出現
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        email: { type: string, format: email, example: runner@example.com }
+        name: { type: string, example: 小跑 }
+        role: { type: string, enum: [member, admin], example: member }
+
+    RegisterInput:
+      type: object
+      required: [email, password, name]
+      properties:
+        email: { type: string, format: email, maxLength: 255, example: runner@example.com }
+        password: { type: string, minLength: 8, maxLength: 72, example: your-password }
+        name: { type: string, minLength: 1, maxLength: 50, example: 小跑 }
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: runner@example.com }
+        password: { type: string, example: your-password }
+
+    AuthResponse:
+      type: object
+      properties:
+        status: { type: string, example: success }
+        data:
+          type: object
+          properties:
+            user: { $ref: '#/components/schemas/User' }
+            token: { type: string, description: JWT，放在 Authorization 標頭, example: '<JWT>' }
+
+    Category:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: 跑鞋 }
+
+    Product:
+      type: object
+      properties:
+        id: { type: integer, example: 1 }
+        name: { type: string, example: Stridea Aero 3 輕量競速跑鞋 }
+        description: { type: string, example: 全掌回彈中底搭配碳纖維推進片，適合比賽日與節奏跑。 }
+        price: { type: integer, description: 新台幣（元）, example: 4280 }
+        imageUrl: { type: string, format: uri, example: 'https://placehold.co/600x600/1d4ed8/ffffff?text=Aero+3' }
+        category: { $ref: '#/components/schemas/Category' }
+
+    ProductResponse:
+      type: object
+      properties:
+        status: { type: string, example: success }
+        data:
+          type: object
+          properties:
+            product: { $ref: '#/components/schemas/Product' }
+
+    Pagination:
+      type: object
+      properties:
+        page: { type: integer, example: 1 }
+        limit: { type: integer, example: 12 }
+        total: { type: integer, description: 符合條件的總筆數, example: 35 }
+        totalPages: { type: integer, example: 3 }
+
+    ProductCreateInput:
+      type: object
+      required: [name, price, imageUrl, categoryId]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100, example: Kairo Sprint 競速跑鞋 }
+        description: { type: string, maxLength: 2000, default: '', example: 適合短距離比賽。 }
+        price: { type: integer, minimum: 0, maximum: 10000000, example: 3980 }
+        imageUrl:
+          type: string
+          format: uri
+          maxLength: 500
+          description: 必須是 http 或 https 網址
+          example: 'https://placehold.co/600x600/1d4ed8/ffffff?text=Sprint'
+        categoryId: { type: integer, minimum: 1, description: 必須是存在的分類, example: 1 }
+
+    ProductUpdateInput:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        description: { type: string, maxLength: 2000 }
+        price: { type: integer, minimum: 0, maximum: 10000000, example: 3680 }
+        imageUrl: { type: string, format: uri, maxLength: 500 }
+        categoryId: { type: integer, minimum: 1 }
+
+    CartItem:
+      type: object
+      properties:
+        id: { type: integer, description: 購物車項目 id（調整、移除時使用）, example: 1 }
+        quantity: { type: integer, example: 2 }
+        subtotal: { type: integer, description: 單價 × 數量, example: 8560 }
+        product:
+          type: object
+          properties:
+            id: { type: integer, example: 1 }
+            name: { type: string, example: Stridea Aero 3 輕量競速跑鞋 }
+            price: { type: integer, example: 4280 }
+            imageUrl: { type: string, format: uri }
+
+    Cart:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CartItem' }
+        totalQuantity: { type: integer, description: 所有項目的數量加總, example: 2 }
+        totalPrice: { type: integer, description: 所有項目的小計加總, example: 8560 }
+
+    CartResponse:
+      type: object
+      properties:
+        status: { type: string, example: success }
+        data:
+          type: object
+          properties:
+            cart: { $ref: '#/components/schemas/Cart' }
+
+    CartItemAddInput:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId: { type: integer, minimum: 1, example: 1 }
+        quantity: { type: integer, minimum: 1, maximum: 99, example: 1 }
+
+    CartItemUpdateInput:
+      type: object
+      required: [quantity]
+      properties:
+        quantity: { type: integer, minimum: 1, maximum: 99, example: 3 }
