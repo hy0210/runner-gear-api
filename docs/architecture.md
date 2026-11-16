@@ -20,7 +20,7 @@ flowchart TB
         subgraph ec2["EC2 t3.micro Ubuntu 24.04＋Elastic IP"]
             subgraph compose["Docker Compose"]
                 api["api 容器<br/>Express 5 / Node.js 24<br/>容器內 3000 埠"]
-                db["db 容器<br/>PostgreSQL 16<br/>不對應主機埠"]
+                db["db 容器<br/>PostgreSQL 18<br/>不對應主機埠"]
             end
             volume[("db-data<br/>Docker volume")]
             envfile["/home/ubuntu/runner-gear-api/.env<br/>權限 600"]
@@ -70,7 +70,7 @@ flowchart TB
 |---|---|---|
 | 前端 | Amplify Hosting 連接 `runner-gear-web` | 合併到 `main` 即自動建置部署 |
 | 後端 API | EC2 上 `docker compose up -d --build`，由 `Dockerfile` 建置映像檔 | 在 EC2 執行 `git pull && docker compose up -d --build` |
-| 資料庫 | 同一台 EC2 的 `db` 容器，用官方 `postgres:16-alpine` 映像檔 | 不需更新；結構變更由 migration 處理 |
+| 資料庫 | 同一台 EC2 的 `db` 容器，用官方 `postgres:18-alpine` 映像檔 | 不需更新；結構變更由 migration 處理 |
 | 資料表結構 | api 容器啟動時自動執行 `node src/scripts/migrate.js` | 有新的 migration 時，重新啟動容器即套用 |
 | 展示資料 | `docker compose exec api npm run seed` | 同一個指令可重複執行以還原 |
 
