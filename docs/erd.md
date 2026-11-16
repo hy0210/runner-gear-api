@@ -1,6 +1,7 @@
 # 資料表關係圖（ERD）
 
 對應 migration：`src/migrations/1763190000000-init-schema.js`；entity 定義在 `src/entities/`。
+資料庫在整體架構中的位置見 [`architecture.md`](architecture.md)。
 資料表結構有變動時，請同步更新這份文件。
 
 ```mermaid
