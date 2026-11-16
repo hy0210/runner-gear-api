@@ -47,7 +47,7 @@ API 文件可以直接在瀏覽器試打：先呼叫登入取得 `token`，按�
 | 項目 | 使用 |
 |---|---|
 | 執行環境 | Node.js 24、Express 5（JavaScript） |
-| 資料庫 | PostgreSQL 16、TypeORM（EntitySchema + migration） |
+| 資料庫 | PostgreSQL 18、TypeORM（EntitySchema + migration） |
 | 身分驗證 | bcrypt 密碼雜湊、JWT（有期限）、`auth` 與 `requireAdmin` middleware |
 | 輸入驗證 | zod |
 | 安全 | helmet、CORS 白名單、註冊與登入限流、請求大小上限 |
@@ -81,11 +81,11 @@ docs/                   需求摘要、進度、決策紀錄、資安紀錄、�
 
 ## 本機啟動
 
-需要 Node.js 24 以上與 PostgreSQL 16。沒有安裝 PostgreSQL 的話，可以用 Docker 起一個：
+需要 Node.js 24 以上與 PostgreSQL（16 以上皆可；正式環境與 CI 使用 18）。沒有安裝 PostgreSQL 的話，可以用 Docker 起一個：
 
 ```bash
 docker run -d --name runner-gear-pg -p 127.0.0.1:5432:5432 \
-  -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runner_gear postgres:16-alpine
+  -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runner_gear postgres:18-alpine
 ```
 
 這個資料庫只綁定在本機（`127.0.0.1`），帳號密碼都是 `postgres`，僅供本機開發使用。

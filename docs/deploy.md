@@ -150,6 +150,7 @@ CORS_ORIGINS=https://main.xxxxxxxx.amplifyapp.com,http://localhost:5173
 
 - **主機重開機**：兩個容器都設定了 `restart: unless-stopped`，Docker 服務也已設為開機啟動，重開機後會自動恢復，不需要手動操作。可用 `sudo reboot` 後等一兩分鐘，再以 `curl -s http://localhost/health` 驗證。
 - **緊急讓所有登入失效**（例如懷疑 Token 外洩）：把 `.env` 的 `JWT_SECRET` 換成新的隨機字串，再執行 `docker compose up -d`。所有人都需要重新登入。
+- **資料目錄的位置**：PostgreSQL 18 的官方映像檔把資料放在版本專屬的子目錄（容器內 `/var/lib/postgresql/18/docker`），所以 `docker-compose.yml` 把 volume 掛在 `/var/lib/postgresql`。網路上較舊的教學寫 `/var/lib/postgresql/data`，在 18 上會讓容器啟動失敗或初始化成空資料庫，不要照改。
 - **不要執行** `docker compose down -v`：`-v` 會刪除資料庫的 volume，所有資料都會消失。
 
 ## 六、線上冒煙測試
