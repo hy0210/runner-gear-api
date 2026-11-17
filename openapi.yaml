@@ -15,6 +15,9 @@ info:
     - 請求有誤（4xx）：`{ "status": "failed", "message": "...", "errors": [...] }`，`errors` 只在欄位驗證失敗時出現
     - 伺服器錯誤（5xx）：`{ "status": "error", "message": "..." }`
 
+    **請求次數上限**
+    同一來源每分鐘最多 300 次 `/api/v1` 請求，超過回 429；註冊與登入另有較低的上限（見各 API 說明）。
+
     測試帳號請見 Repo 的 README。
 servers:
   - url: /
@@ -84,7 +87,7 @@ paths:
       description: |
         成功時回傳會員資料與 token（預設 7 天後到期）。
         帳號不存在與密碼錯誤回傳相同的訊息。
-        同一來源 15 分鐘內失敗超過 20 次會回 429。
+        同一來源 15 分鐘內失敗超過 20 次，或登入總次數（含成功）超過 60 次，會回 429。
       requestBody:
         required: true
         content:
@@ -124,6 +127,7 @@ paths:
                     properties:
                       user: { $ref: '#/components/schemas/User' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/categories:
     get:
@@ -144,6 +148,7 @@ paths:
                       categories:
                         type: array
                         items: { $ref: '#/components/schemas/Category' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/products:
     get:
@@ -184,6 +189,7 @@ paths:
                         items: { $ref: '#/components/schemas/Product' }
                       pagination: { $ref: '#/components/schemas/Pagination' }
         '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/products/{id}:
     get:
@@ -199,6 +205,7 @@ paths:
               schema: { $ref: '#/components/schemas/ProductResponse' }
         '400': { $ref: '#/components/responses/ValidationError' }
         '404': { $ref: '#/components/responses/ProductNotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/admin/products:
     post:
@@ -219,6 +226,7 @@ paths:
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/admin/products/{id}:
     patch:
@@ -243,6 +251,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/ProductNotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
     delete:
       tags: [商品管理]
       summary: 刪除商品（管理員）
@@ -257,6 +266,7 @@ paths:
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '404': { $ref: '#/components/responses/ProductNotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/cart:
     get:
@@ -270,6 +280,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/CartResponse' }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/cart/items:
     post:
@@ -294,6 +305,7 @@ paths:
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/ProductNotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/v1/cart/items/{itemId}:
     patch:
@@ -317,6 +329,7 @@ paths:
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/CartItemNotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
     delete:
       tags: [購物車]
       summary: 移除購物車項目
@@ -333,6 +346,7 @@ paths:
         '400': { $ref: '#/components/responses/ValidationError' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '404': { $ref: '#/components/responses/CartItemNotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
 components:
   securitySchemes:
@@ -392,7 +406,7 @@ components:
           schema: { $ref: '#/components/schemas/Failed' }
           example: { status: failed, message: 找不到這個購物車項目 }
     TooManyRequests:
-      description: 嘗試次數過多
+      description: 請求次數過多（全站上限，或註冊／登入的次數上限）。回應帶 `RateLimit`、`RateLimit-Policy` 與 `Retry-After` 標頭
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Failed' }

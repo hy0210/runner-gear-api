@@ -50,7 +50,7 @@ API 文件可以直接在瀏覽器試打：先呼叫登入取得 `token`，按�
 | 資料庫 | PostgreSQL 18、TypeORM（EntitySchema + migration） |
 | 身分驗證 | bcrypt 密碼雜湊、JWT（有期限）、`auth` 與 `requireAdmin` middleware |
 | 輸入驗證 | zod |
-| 安全 | helmet、CORS 白名單、註冊與登入限流、請求大小上限 |
+| 安全 | helmet、CORS 白名單、全站與註冊／登入限流、請求大小上限 |
 | API 文件 | OpenAPI 3（`openapi.yaml`）+ Swagger UI |
 | 測試 | Jest + Supertest（連接真實的 PostgreSQL） |
 | CI | GitHub Actions：lint、測試、gitleaks、`npm audit` |
