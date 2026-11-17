@@ -2,10 +2,10 @@
 
 ## 目前狀態
 - 里程碑：M2 文件與上線（後端已上線）
-- 進行中的分支與 issue：無（後端 #1–#12 皆已完成）
-- 下一步：前端批次 7（`hy0210/runner-gear-web`：Amplify 部署與線上驗收）；前端上線後把前端網址加入後端的 `CORS_ORIGINS`
+- 進行中的分支與 issue：`fix/rate-limit`（#21 限流補強），PR 待審
+- 下一步：#21 的 PR 合併後，在 EC2 更新後端（`git pull && docker compose up -d --build`）；前端 #8 線上驗收見 `hy0210/runner-gear-web`
 - 等使用者處理：
-  1. 前端部署後，在 EC2 的 `.env` 把前端網址加進 `CORS_ORIGINS`，再執行 `docker compose up -d`
+  1. 審查並合併 #21 的 PR，合併後在 EC2 更新後端
   2. 審核期間（至 12/04）每天確認一次商品資料完整；被改亂時執行 `docker compose exec api npm run seed`
 
 ## 批次總覽
@@ -15,6 +15,7 @@
 | 2 | `feat/be-auth` | M1 | #4 註冊登入、#5 auth middleware 與管理員 seed | ✅ 已合併（PR #14） |
 | 3 | `feat/be-shop` | M1 | #6 商品瀏覽、#7 商品管理、#8 購物車、#9 測試資料 seed | ✅ 已合併（PR #15） |
 | 4 | `feat/be-release` | M2 文件與上線 | #10 API 文件、#11 部署、#12 README | ✅ 已合併（PR #17） |
+| 修正 | `fix/rate-limit` | — | #21 限流補強（登入總次數上限、全站請求上限） | 🔍 PR 待審 |
 
 前端批次 5–7 的進度見 `hy0210/runner-gear-web` 的 `docs/PROGRESS.md`。
 

@@ -151,7 +151,7 @@ describe('#4 註冊與登入有限流', () => {
     expect(blocked.body.status).toBe('failed');
   });
 
-  test('登入成功不計入次數：連續成功登入不會被限流', async () => {
+  test('登入成功不計入失敗次數：連續成功登入不會被失敗上限擋下', async () => {
     const limited = createApp({ authRateLimitMax: 2 });
     await request(limited).post(REGISTER).send(validUser);
     const login = () => request(limited).post(LOGIN).send({ email: validUser.email, password: validUser.password });
